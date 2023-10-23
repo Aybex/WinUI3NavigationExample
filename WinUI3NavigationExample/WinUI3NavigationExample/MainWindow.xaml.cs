@@ -1,18 +1,8 @@
-﻿using Microsoft.UI.Composition.SystemBackdrops;
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using WinUI3NavigationExample.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -24,44 +14,28 @@ namespace WinUI3NavigationExample
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        public MainWindow()
+        private readonly string appTitle;
+        public MainWindow(string appTitle)
         {
-            this.InitializeComponent();
+            this.appTitle = appTitle;
+            InitializeComponent();
 
             NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems.OfType<NavigationViewItem>().First();
-            ContentFrame.Navigate(
-                       typeof(Views.HomePage),
-                       null,
-                       new Microsoft.UI.Xaml.Media.Animation.EntranceNavigationTransitionInfo()
-                       );
-
-            SystemBackdrop = new MicaBackdrop()
-                { Kind = MicaKind.Base };
+            ContentFrame.Navigate(typeof(HomePage), null, new EntranceNavigationTransitionInfo());
 
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
         }
 
-        public string GetAppTitleFromSystem()
+        private void NavigationViewControl_ItemInvoked(NavigationView sender, NavigationViewItemInvokedEventArgs args)
         {
-            return Windows.ApplicationModel.Package.Current.DisplayName;
-        }
+            if (args.IsSettingsInvoked)
+                ContentFrame.Navigate(typeof(SettingsPage), null, args.RecommendedNavigationTransitionInfo);
 
-        private void NavigationViewControl_ItemInvoked(NavigationView sender,
-                      NavigationViewItemInvokedEventArgs args)
-        {
-            if (args.IsSettingsInvoked == true)
-            {
-                ContentFrame.Navigate(typeof(Views.SettingsPage), null, args.RecommendedNavigationTransitionInfo);
-            }
             else if (args.InvokedItemContainer != null && (args.InvokedItemContainer.Tag != null))
             {
-                Type newPage = Type.GetType(args.InvokedItemContainer.Tag.ToString());
-                ContentFrame.Navigate(
-                       newPage,
-                       null,
-                       args.RecommendedNavigationTransitionInfo
-                       );
+                Type newPage = Type.GetType(args.InvokedItemContainer.Tag.ToString()!);
+                ContentFrame.Navigate(newPage, null, args.RecommendedNavigationTransitionInfo);
             }
         }
 
@@ -74,16 +48,15 @@ namespace WinUI3NavigationExample
         {
             NavigationViewControl.IsBackEnabled = ContentFrame.CanGoBack;
 
-            if (ContentFrame.SourcePageType == typeof(Views.SettingsPage))
-            {
-                // SettingsItem is not part of NavView.MenuItems, and doesn't have a Tag.
+            // SettingsItem is not part of NavView.MenuItems, and doesn't have a Tag.
+            if (ContentFrame.SourcePageType == typeof(SettingsPage))
                 NavigationViewControl.SelectedItem = (NavigationViewItem)NavigationViewControl.SettingsItem;
-            }
+
             else if (ContentFrame.SourcePageType != null)
             {
                 NavigationViewControl.SelectedItem = NavigationViewControl.MenuItems
                     .OfType<NavigationViewItem>()
-                    .First(n => n.Tag.Equals(ContentFrame.SourcePageType.FullName.ToString()));
+                    .First(n => n.Tag.Equals(ContentFrame.SourcePageType.FullName));
             }
 
             NavigationViewControl.Header = ((NavigationViewItem)NavigationViewControl.SelectedItem)?.Content?.ToString();
