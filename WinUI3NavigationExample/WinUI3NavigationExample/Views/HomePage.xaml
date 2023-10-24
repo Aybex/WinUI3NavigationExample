@@ -6,15 +6,20 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    NavigationCacheMode="Required">
+    DataContext="ViewModel"
+    NavigationCacheMode="Required"
+    >
 
-    <Grid>
+
+    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Top" Height="120px">
         <Grid.RowDefinitions>
-            <RowDefinition Height="100px"></RowDefinition>
-            <RowDefinition Height="100px"></RowDefinition>
-
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Width="400px" Height="100px" Text="Home"/>
-        <TextBox Grid.Row="1" PlaceholderText="Test" Text="Put text here" Width="400px" Height="100px"  ></TextBox>
+
+        <TextBlock HorizontalAlignment="Left" Text="{x:Bind ViewModel.Name, Mode=OneWay}"/>
+        <Button Grid.Row="1" IsEnabled="{x:Bind ViewModel.ButtonEnabled, Mode=TwoWay}" Content="Click me" />
+        <CheckBox Grid.Row="2" Content="Two-state CheckBox" IsChecked="{x:Bind ViewModel.ButtonEnabled, Mode=TwoWay}" />
     </Grid>
 </Page>
